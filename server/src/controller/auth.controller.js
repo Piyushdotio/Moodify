@@ -31,7 +31,13 @@ async function registerUser(req,res) {
     },process.env.JWT_SECRET,{
         expiresIn:"3d"
     })
-    res.cookie("token",token)
+    const isProduction = process.env.NODE_ENV === "production" || !req.get('host').includes('localhost');
+    res.cookie("token", token, {
+        httpOnly: true,
+        secure: isProduction,
+        sameSite: isProduction ? "none" : "lax",
+        maxAge: 3 * 24 * 60 * 60 * 1000 // 3 days
+    });
     return res.status(200).json({
         message:"User Registered Successfully",
         user:{
@@ -72,7 +78,13 @@ async function loginUser(req,res) {
     },process.env.JWT_SECRET,{
         expiresIn:"3d"
     })
-    res.cookie("token",token)
+    const isProduction = process.env.NODE_ENV === "production" || !req.get('host').includes('localhost');
+    res.cookie("token", token, {
+        httpOnly: true,
+        secure: isProduction,
+        sameSite: isProduction ? "none" : "lax",
+        maxAge: 3 * 24 * 60 * 60 * 1000 // 3 days
+    });
 
     return res.status(200).json({
         message:"user logged in successfully",
