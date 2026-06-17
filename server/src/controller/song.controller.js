@@ -61,9 +61,12 @@ async function getSong(req,res){
         mood = mood.toLowerCase();
     }
 
-    let song=await songModel.findOne({
-        mood
-    })
+    const songs = await songModel.find({ mood });
+    let song = null;
+    if (songs.length > 0) {
+        const randomIndex = Math.floor(Math.random() * songs.length);
+        song = songs[randomIndex];
+    }
 
     if (!song) {
         // Map to existing moods in DB as fallbacks
@@ -77,12 +80,20 @@ async function getSong(req,res){
         }
 
         if (fallbackMood) {
-            song = await songModel.findOne({ mood: fallbackMood });
+            const fallbackSongs = await songModel.find({ mood: fallbackMood });
+            if (fallbackSongs.length > 0) {
+                const randomIndex = Math.floor(Math.random() * fallbackSongs.length);
+                song = fallbackSongs[randomIndex];
+            }
         }
 
-        // If still no song found, return any song in the DB as a last resort
+        // If still no song found, return a random song from the DB as a last resort
         if (!song) {
-            song = await songModel.findOne({});
+            const allSongs = await songModel.find({});
+            if (allSongs.length > 0) {
+                const randomIndex = Math.floor(Math.random() * allSongs.length);
+                song = allSongs[randomIndex];
+            }
         }
     }
 
