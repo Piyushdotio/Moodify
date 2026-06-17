@@ -55,12 +55,37 @@ async function uploadSong(req, res) {
     }
 }
 async function getSong(req,res){
+    let {mood}=req.query
 
-    const {mood}=req.query
+    if (mood) {
+        mood = mood.toLowerCase();
+    }
 
-    const song=await songModel.findOne({
+    let song=await songModel.findOne({
         mood
     })
+
+    if (!song) {
+        // Map to existing moods in DB as fallbacks
+        let fallbackMood;
+        if (mood === "neutral") {
+            fallbackMood = "happy";
+        } else if (mood === "angry") {
+            fallbackMood = "sad";
+        } else if (mood === "surprised" || mood === "suprised") {
+            fallbackMood = "happy";
+        }
+
+        if (fallbackMood) {
+            song = await songModel.findOne({ mood: fallbackMood });
+        }
+
+        // If still no song found, return any song in the DB as a last resort
+        if (!song) {
+            song = await songModel.findOne({});
+        }
+    }
+
     res.status(200).json({
         message:"Song Fetched Successfully",
         song
