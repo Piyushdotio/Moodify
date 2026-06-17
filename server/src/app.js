@@ -1,21 +1,20 @@
-const express=require("express")
-const app=express()
-const cors=require("cors")
-const cookieParser=require("cookie-parser")
-const path =require("path");
-const fileURLToPath =require("url");
+const express = require("express");
+const app = express();
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const cors = require("cors");
+const cookieParser = require("cookie-parser");
+const path = require("path");
 
-app.use(express.json())
-app.use(cookieParser())
+app.use(express.json());
+app.use(cookieParser());
+
 const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:3000",
   process.env.CLIENT_URL,
-  process.env.FRONTEND_URL
+  process.env.FRONTEND_URL,
 ].filter(Boolean);
+
 app.use(
   cors({
     origin: function (origin, callback) {
@@ -30,16 +29,20 @@ app.use(
     credentials: true,
   })
 );
-app.use(express.static('./dist'))
 
+// Serve frontend build
+app.use(express.static(path.join(__dirname, "../dist")));
 
-const authRoutes=require("./routes/auth.routes")
-const songRoutes=require("./routes/song.routes")
-app.use("/api/auth",authRoutes)
-app.use("/api/songs",songRoutes)
-app.get("/{*splat}", (req, res) => {
+// Routes
+const authRoutes = require("./routes/auth.routes");
+const songRoutes = require("./routes/song.routes");
+
+app.use("/api/auth", authRoutes);
+app.use("/api/songs", songRoutes);
+
+// React/Vite SPA fallback
+app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "../dist", "index.html"));
 });
 
-
-module.exports=app
+module.exports = app;
