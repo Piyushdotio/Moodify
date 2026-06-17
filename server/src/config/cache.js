@@ -4,6 +4,7 @@ const redis = new Redis({
     host: process.env.REDIS_HOST,
     port: process.env.REDIS_PORT,
     password: process.env.REDIS_PASSWORD,
+    enableOfflineQueue: false, // Fail fast on commands instead of hanging when Redis is offline
     retryStrategy(times) {
         // Backoff reconnection attempts to avoid CPU spin, up to 10s delay
         return Math.min(times * 1000, 10000);
