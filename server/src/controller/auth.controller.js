@@ -6,48 +6,55 @@ const blacklistModel=require("../models/blacklist.model")
 
 
 async function registerUser(req,res) {
-    const {username,email,password}=req.body
+    try {
+        const {username,email,password}=req.body;
+        console.log("Register payload received:", { username, email, password: password ? "[HIDDEN]" : "MISSING" });
 
-    const isAlreadyRegistered=await userModel.findOne({
-        $or:[
-            {email},
-            {username}
-        ]
-    })
-    if(isAlreadyRegistered){
-        return res.status(400).json({
-            message:"User with the same email or username already exists "
-        })
-    }
-    const hash=await bcrypt.hash(password,10)
-    const user=await userModel.create({
-        username,
-        email,
-        password:hash
-    })
-    const token=jwt.sign({
-        id:user._id,
-        username:user.username
-    },process.env.JWT_SECRET,{
-        expiresIn:"3d"
-    })
-    const isProduction = process.env.NODE_ENV === "production" || !req.get('host').includes('localhost');
-    res.cookie("token", token, {
-        httpOnly: true,
-        secure: isProduction,
-        sameSite: isProduction ? "none" : "lax",
-        maxAge: 3 * 24 * 60 * 60 * 1000 // 3 days
-    });
-    return res.status(200).json({
-        message:"User Registered Successfully",
-        user:{
-            id:user._id,
-            username:user.username,
-            email:user.email
+        const isAlreadyRegistered=await userModel.findOne({
+            $or:[
+                {email},
+                {username}
+            ]
+        });
+        if(isAlreadyRegistered){
+            console.log("Registration conflict: user already registered:", { email, username });
+            return res.status(400).json({
+                message:"User with the same email or username already exists "
+            });
         }
-
-    })
-
+        const hash=await bcrypt.hash(password,10);
+        const user=await userModel.create({
+            username,
+            email,
+            password:hash
+        });
+        const token=jwt.sign({
+            id:user._id,
+            username:user.username
+        },process.env.JWT_SECRET,{
+            expiresIn:"3d"
+        });
+        const isProduction = process.env.NODE_ENV === "production" || !req.get('host').includes('localhost');
+        res.cookie("token", token, {
+            httpOnly: true,
+            secure: isProduction,
+            sameSite: isProduction ? "none" : "lax",
+            maxAge: 3 * 24 * 60 * 60 * 1000 // 3 days
+        });
+        return res.status(200).json({
+            message:"User Registered Successfully",
+            user:{
+                id:user._id,
+                username:user.username,
+                email:user.email
+            }
+        });
+    } catch (err) {
+        console.error("Registration error details:", err);
+        return res.status(400).json({
+            message: err.message || "Registration failed"
+        });
+    }
 }
 
 async function loginUser(req,res) {

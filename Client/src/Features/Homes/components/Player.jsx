@@ -1,125 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useSong } from "../hooks/useSong";
 
-const shellStyles = {
-    position: "fixed",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: "80px",
-    background: "#000000",
-    color: "#ffffff",
-    display: "flex",
-    alignItems: "center",
-    padding: "0 20px",
-    boxShadow: "0 -4px 12px rgba(0, 0, 0, 0.3)",
-    zIndex: 1000
-};
-
-const leftSectionStyles = {
-    display: "flex",
-    alignItems: "center",
-    gap: "12px",
-    flex: "0 0 250px"
-};
-
-const centerSectionStyles = {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    flex: 1
-};
-
-const rightSectionStyles = {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "flex-end",
-    flex: "0 0 200px",
-    gap: "12px"
-};
-
-const volumeButtonStyles = {
-    width: "32px",
-    height: "32px",
-    borderRadius: "4px",
-    background: "transparent",
-    color: "#ccc",
-    border: "none",
-    cursor: "pointer",
-    fontSize: "14px",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center"
-};
-
-const volumeSliderStyles = {
-    width: "80px",
-    height: "4px",
-    accentColor: "#ff6b35",
-    cursor: "pointer",
-    background: "#444"
-};
-
-const posterStyles = {
-    width: "60px",
-    height: "60px",
-    borderRadius: "4px",
-    objectFit: "cover",
-    background: "#333",
-    border: "1px solid #444"
-};
-
-const controlsRowStyles = {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: "8px",
-    flex: 1
-};
-
-const secondaryButtonStyles = {
-    width: "40px",
-    height: "40px",
-    borderRadius: "50%",
-    background: "transparent",
-    color: "#ccc",
-    border: "none",
-    cursor: "pointer",
-    fontSize: "16px",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    transition: "color 0.2s, background-color 0.2s"
-};
-
-const primaryButtonStyles = {
-    width: "48px",
-    height: "48px",
-    borderRadius: "50%",
-    background: "#ff6b35",
-    color: "#fff",
-    border: "none",
-    cursor: "pointer",
-    fontSize: "18px",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    boxShadow: "0 2px 8px rgba(255, 107, 53, 0.4)",
-    transition: "background-color 0.2s"
-};
-
-const sliderStyles = {
-    width: "100%",
-    height: "4px",
-    accentColor: "#ff6b35",
-    cursor: "pointer",
-    background: "#444"
-};
-
-const infoPillStyles = {
-    display: "none" // Hide in bottom player
-};
-
 function formatTime(value) {
     if (!Number.isFinite(value)) {
         return "0:00";
@@ -281,100 +162,109 @@ function Player() {
     }
 
     return (
-        <section style={shellStyles}>
+        <section className="player-bar">
             <audio ref={audioRef} preload="metadata">
                 {song?.url ? <source src={song.url} /> : null}
             </audio>
 
-            <div style={leftSectionStyles}>
-                {song?.posterUrl ? (
-                    <img src={song.posterUrl} alt={song.title || "Song poster"} style={posterStyles} />
-                ) : (
-                    <div style={posterStyles} />
-                )}
-                <div>
-                    <h3 style={{ margin: 0, fontSize: "0.9rem", color: "#fff" }}>
-                        {song?.title || "No song loaded"}
-                    </h3>
-                    <p style={{ margin: "4px 0 0 0", fontSize: "0.7rem", color: "#ccc" }}>
-                        {song?.mood || "Detect expression"}
-                    </p>
+            <div className="player-bar__container">
+                {/* Left section: Poster and Title */}
+                <div className="player-bar__left">
+                    {song?.posterUrl ? (
+                        <img src={song.posterUrl} alt={song.title || "Song poster"} className="player-bar__poster" />
+                    ) : (
+                        <div className="player-bar__poster" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#111' }}>
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-slate-600"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+                        </div>
+                    )}
+                    <div>
+                        <h3 className="player-bar__title">
+                            {song?.title || "No song loaded"}
+                        </h3>
+                        <p className="player-bar__subtitle">
+                            {song?.mood ? `Mood: ${song.mood}` : "Waiting for expression scan"}
+                        </p>
+                    </div>
                 </div>
-            </div>
 
-            <div style={centerSectionStyles}>
-                <div style={controlsRowStyles}>
-                    <button
-                        type="button"
-                        onClick={() => skipBy(-10)}
-                        style={secondaryButtonStyles}
-                        disabled={!song?.url}
-                        title="Rewind 10 seconds"
-                        aria-label="Rewind 10 seconds"
-                    >
-                        ⏮️
-                    </button>
-                    <button
-                        type="button"
-                        onClick={togglePlayback}
-                        style={primaryButtonStyles}
-                        disabled={!song?.url}
-                        title={isPlaying ? "Pause" : "Play"}
-                        aria-label={isPlaying ? "Pause" : "Play"}
-                    >
-                        {isPlaying ? "⏸️" : "▶️"}
-                    </button>
-                    <button
-                        type="button"
-                        onClick={() => skipBy(10)}
-                        style={secondaryButtonStyles}
-                        disabled={!song?.url}
-                        title="Forward 10 seconds"
-                        aria-label="Forward 10 seconds"
-                    >
-                        ⏭️
-                    </button>
+                {/* Center section: Media controls and progress */}
+                <div className="player-bar__center">
+                    <div className="player-bar__controls">
+                        {/* Skip Back */}
+                        <button
+                            type="button"
+                            onClick={() => skipBy(-10)}
+                            className="player-bar__btn-secondary"
+                            disabled={!song?.url}
+                            title="Rewind 10 seconds"
+                            aria-label="Rewind 10 seconds"
+                        >
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" y1="19" x2="5" y2="5"/></svg>
+                        </button>
+                        
+                        {/* Play / Pause */}
+                        <button
+                            type="button"
+                            onClick={togglePlayback}
+                            className="player-bar__btn-primary"
+                            disabled={!song?.url}
+                            title={isPlaying ? "Pause" : "Play"}
+                            aria-label={isPlaying ? "Pause" : "Play"}
+                        >
+                            {isPlaying ? (
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                            ) : (
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style={{ marginLeft: "2px" }}><path d="M8 5v14l11-7z"/></svg>
+                            )}
+                        </button>
+
+                        {/* Skip Forward */}
+                        <button
+                            type="button"
+                            onClick={() => skipBy(10)}
+                            className="player-bar__btn-secondary"
+                            disabled={!song?.url}
+                            title="Forward 10 seconds"
+                            aria-label="Forward 10 seconds"
+                        >
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/></svg>
+                        </button>
+                    </div>
+
+                    <div className="player-bar__progress-container">
+                        <span className="player-bar__time">{formatTime(currentTime)}</span>
+                        <input
+                            type="range"
+                            min="0"
+                            max={duration || 0}
+                            step="0.1"
+                            value={Math.min(currentTime, duration || 0)}
+                            onChange={handleSeek}
+                            disabled={!song?.url}
+                        />
+                        <span className="player-bar__time">{formatTime(duration)}</span>
+                    </div>
                 </div>
-                <div style={{ width: "100%", marginTop: "8px" }}>
+
+                {/* Right section: Volume control */}
+                <div className="player-bar__right">
+                    <button onClick={toggleMute} className="player-bar__btn-secondary" aria-label={isMuted ? "Unmute" : "Mute"}>
+                        {isMuted ? (
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="22" y1="9" x2="16" y2="15"/><line x1="16" y1="9" x2="22" y2="15"/></svg>
+                        ) : (
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+                        )}
+                    </button>
                     <input
                         type="range"
                         min="0"
-                        max={duration || 0}
+                        max="1"
                         step="0.1"
-                        value={Math.min(currentTime, duration || 0)}
-                        onChange={handleSeek}
-                        style={sliderStyles}
-                        disabled={!song?.url}
+                        value={isMuted ? 0 : volume}
+                        onChange={handleVolumeChange}
+                        style={{ width: "80px" }}
                     />
-                    <div
-                        style={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            marginTop: "4px",
-                            color: "#ccc",
-                            fontVariantNumeric: "tabular-nums",
-                            fontSize: "0.7rem"
-                        }}
-                    >
-                        <span>{formatTime(currentTime)}</span>
-                        <span>{formatTime(duration)}</span>
-                    </div>
                 </div>
-            </div>
-
-            <div style={rightSectionStyles}>
-                <button onClick={toggleMute} style={volumeButtonStyles}>
-                    {isMuted ? "🔇" : "🔊"}
-                </button>
-                <input
-                    type="range"
-                    min="0"
-                    max="1"
-                    step="0.1"
-                    value={isMuted ? 0 : volume}
-                    onChange={handleVolumeChange}
-                    style={volumeSliderStyles}
-                />
             </div>
         </section>
     );

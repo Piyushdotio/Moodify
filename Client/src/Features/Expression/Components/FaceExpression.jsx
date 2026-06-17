@@ -49,22 +49,12 @@ export default function FaceExpression({ onClick = () => { } }) {
 
     if (error) {
         return (
-            <div style={{ textAlign: "center", color: "#ff6b35", padding: "24px" }}>
-                <h2 style={{ color: "#ff6b35", marginBottom: "12px" }}>⚠️ Camera Access Error</h2>
-                <p style={{ color: "#ffffff", marginBottom: "20px", fontSize: "0.95rem", lineHeight: "1.5" }}>{error}</p>
+            <div className="dashboard-error">
+                <h2 className="dashboard-error__title">⚠️ Camera Access Error</h2>
+                <p className="dashboard-error__message">{error}</p>
                 <button
                     onClick={() => window.location.reload()}
-                    style={{
-                        padding: "10px 20px",
-                        borderRadius: "8px",
-                        background: "#ff6b35",
-                        color: "#000000",
-                        border: "none",
-                        cursor: "pointer",
-                        fontSize: "14px",
-                        fontWeight: "bold",
-                        boxShadow: "0 4px 12px rgba(255, 107, 53, 0.3)"
-                    }}
+                    className="btn btn-primary"
                 >
                     Retry Request
                 </button>
@@ -72,29 +62,40 @@ export default function FaceExpression({ onClick = () => { } }) {
         );
     }
 
+    const isActive = expression !== "Detecting..." && expression !== "Face not detected";
+
     return (
-        <div style={{ textAlign: "center", color: "#ffffff" }}>
-            <video
-                ref={videoRef}
-                style={{ width: "400px", borderRadius: "12px", transform: "scaleX(-1)", border: "2px solid #ff6b35" }}
-                playsInline
-            />
-            <h2 style={{ color: "#ff6b35", margin: "16px 0" }}>{expression}</h2>
+        <div className="dashboard-scanner">
+            <h1 className="dashboard__title">Moodify Expression Player</h1>
+            <p className="dashboard__subtitle">Scan your face to detect your current mood and automatically stream a personalized playlist matching your energy.</p>
+
+            {/* Webcam viewport wrapper with scanline */}
+            <div className="webcam-viewport">
+                <video
+                    ref={videoRef}
+                    className="webcam-viewport__video"
+                    playsInline
+                />
+                <div className="webcam-viewport__scanline" />
+            </div>
+
+            {/* Detection status badge */}
+            <div className={`expression-badge ${isActive ? 'expression-badge--active' : ''}`}>
+                <span>Expression: </span>
+                <strong>{expression}</strong>
+            </div>
+
             <button
                 onClick={handleClick}
-                style={{
-                    padding: "12px 24px",
-                    borderRadius: "8px",
-                    background: "#ff6b35",
-                    color: "#000000",
-                    border: "none",
-                    cursor: "pointer",
-                    fontSize: "16px",
-                    fontWeight: "bold",
-                    boxShadow: "0 4px 12px rgba(255, 107, 53, 0.3)"
-                }}
+                className="btn btn-primary btn--lg"
             >
-                Detect expression
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
+                    <line x1="9" y1="9" x2="9.01" y2="9"/>
+                    <line x1="15" y1="9" x2="15.01" y2="9"/>
+                </svg>
+                <span>Detect Expression</span>
             </button>
         </div>
     );
