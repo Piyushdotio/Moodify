@@ -37,7 +37,11 @@ export const useAuth=()=>{
             const data=await getMe()
             setUser(data.user)
         } catch (error) {
-            console.error("Get current user failed:", error)
+            if (error.response && error.response.status === 401) {
+                console.log("No active session found.")
+            } else {
+                console.error("Get current user failed:", error)
+            }
             setUser(null)
         } finally {
             setLoading(false)
