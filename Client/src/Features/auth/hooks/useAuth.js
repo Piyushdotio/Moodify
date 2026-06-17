@@ -8,28 +8,51 @@ export const useAuth=()=>{
 
 
     async function handleRegister({username,email,password}){
-        setLoading(true)
-        const data=await register({username,email,password})
-        setUser(data.user)
-        setLoading(false)
+        try {
+            setLoading(true)
+            const data=await register({username,email,password})
+            setUser(data.user)
+        } catch (error) {
+            console.error("Register failed:", error)
+            throw error
+        } finally {
+            setLoading(false)
+        }
     }
     async function handleLogin({username,email,password}){
-        setLoading(true)
-        const data=await login({username,email,password})
-        setUser(data.user)
-        setLoading(false)
+        try {
+            setLoading(true)
+            const data=await login({username,email,password})
+            setUser(data.user)
+        } catch (error) {
+            console.error("Login failed:", error)
+            throw error
+        } finally {
+            setLoading(false)
+        }
     }
     async function handlegetMe() {
-        setLoading(true)
-        const data=await getMe()
-        setUser(data.user)
-        setLoading(false)
+        try {
+            setLoading(true)
+            const data=await getMe()
+            setUser(data.user)
+        } catch (error) {
+            console.error("Get current user failed:", error)
+            setUser(null)
+        } finally {
+            setLoading(false)
+        }
     }
     async function handlelogout(){
-        setLoading(true)
-        const data=await logout()
-        setUser(null)
-        setLoading(false)
+        try {
+            setLoading(true)
+            await logout()
+        } catch (error) {
+            console.error("Logout failed:", error)
+        } finally {
+            setUser(null)
+            setLoading(false)
+        }
     }
 
     useEffect(()=>{

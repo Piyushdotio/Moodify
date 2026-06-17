@@ -16,7 +16,12 @@ const Login = () => {
   const [password, setPassword] = useState("");
   async function handleSubmit(e) {
     e.preventDefault();
-    navigate("/")
+    try {
+      await handleLogin({ email, password });
+      navigate("/");
+    } catch (err) {
+      console.error("Login form submission error:", err);
+    }
   }
 
   return (

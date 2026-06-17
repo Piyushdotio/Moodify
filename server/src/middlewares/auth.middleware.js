@@ -10,11 +10,15 @@ async function authUser(req,res,next){
             Message:"token not provided "
         })
     }
-    const isTokenBlacklisted=await redis.get(token)
-    if(isTokenBlacklisted){
-        return res.status(401).json({
-            message:"Invalid token"
-        })
+    try {
+        const isTokenBlacklisted=await redis.get(token)
+        if(isTokenBlacklisted){
+            return res.status(401).json({
+                message:"Invalid token"
+            })
+        }
+    } catch (redisErr) {
+        console.error("Redis connection/blacklist check failed:", redisErr.message || redisErr)
     }
     try{
         const decoded=jwt.verify(

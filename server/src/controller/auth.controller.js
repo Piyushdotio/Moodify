@@ -27,7 +27,7 @@ async function registerUser(req,res) {
     })
     const token=jwt.sign({
         id:user._id,
-        username:user._username
+        username:user.username
     },process.env.JWT_SECRET,{
         expiresIn:"3d"
     })
@@ -68,7 +68,7 @@ async function loginUser(req,res) {
 
     const token=jwt.sign({
         id:user._id,
-        username:user._username
+        username:user.username
     },process.env.JWT_SECRET,{
         expiresIn:"3d"
     })
@@ -98,7 +98,13 @@ async function logoutUser(req,res){
     const token=req.cookies.token
 
     res.clearCookie("token")
-    await redis.set(token,Date.now().toString(),"EX",60*60)
+    try {
+        if (token) {
+            await redis.set(token,Date.now().toString(),"EX",60*60)
+        }
+    } catch (redisErr) {
+        console.error("Redis set error on logout:", redisErr.message || redisErr)
+    }
     return res.status(200).json({
         message:"User logout Successfully"
     })
