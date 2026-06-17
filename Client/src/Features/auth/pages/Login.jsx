@@ -17,7 +17,7 @@ const Login = () => {
   async function handleSubmit(e) {
     e.preventDefault();
     try {
-      await handleLogin({ email, password });
+      await handleLogin({ email, username: email, password });
       navigate("/");
     } catch (err) {
       console.error("Login form submission error:", err);
@@ -33,8 +33,8 @@ const Login = () => {
             <FormGroup
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              label="Email"
-              placeholder="Enter your Email"
+              label="Email or Username"
+              placeholder="Enter your Email or Username"
             />
             <FormGroup
             value={password}
